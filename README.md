@@ -1,4 +1,4 @@
- # Usage
+  # Usage
  Build image from Dockerfile
  ```bash
 docker build -t firefox-java .
@@ -9,16 +9,15 @@ docker build -t firefox-java .
  * Set DISPLAY and share access to new unix socket /tmp/.X11-unix/.
  * Drop all capabilities with --cap-drop=ALL --security-opt=no-new-privileges to improve container security.
 
+_Note: Tested on Fedora 28 running X11_
+
  ```bash
-export Displaynumber=1 &
-Xephyr :$Displaynumber -extension MIT-SHM -extension XTEST -host-cursor -screen 1200x800 &
-docker run --rm -it \
-    -e DISPLAY=:$Displaynumber \
+Xephyr :1 -extension MIT-SHM -extension XTEST -host-cursor; docker run -d --rm -it \
+    -e DISPLAY=:1 \
     -v /tmp/.X11-unix/:/tmp/.X11-unix/:rw \
     --cap-drop=ALL \
     --security-opt=no-new-privileges \
     firefox-java
-
 ``` 
 # Running with xhost
 If Xephyr is not available xhost can be used for sharing host X display for single applications.
@@ -30,11 +29,11 @@ _Note: This nice short solution has the disadvantage of breaking container isola
 * Allow shared memory with --ipc=host to avoid RAM access failures and rendering glitches due to X extension MIT-SHM.
 * Drop all capabilities with --cap-drop=ALL --security-opt=no-new-privileges to improve container security.
 ```bash
-xhost + &
-docker run --rm -it \
+xhost +; docker run --rm -it \
     -e DISPLAY=unix:0.0 \
     -v /tmp/.X11-unix:/tmp/.X11-unix \
     --ipc=host \
     --cap-drop=ALL \
+    --security-opt=no-new-privileges \
     firefox-java
 ```
